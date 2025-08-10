@@ -1,0 +1,2689 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Subdirección Concursos Jerárquicos — Consulta por DNI</title>
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --card: #ffffff;
+      --accent: #4c4fb8;
+      --light-accent: #2d4e8c;
+      --muted: #6b7280;
+      --result-bg: #ffffff;
+      --header-bg: linear-gradient(135deg, #4c4fb8 0%, #2d4e8c 50%, #066eb0 100%);
+      --header-border: #066eb0;
+      --primary: #2d4e8c;
+      --secondary: #066eb0;
+    }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif; }
+    body { margin: 0; background: var(--bg); color: #333; line-height: 1.6; }
+    header { 
+      background: var(--header-bg); 
+      padding: 30px 20px; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+    }
+    header div {
+      position: relative;
+      z-index: 2;
+    }
+    header div h1 { 
+      margin: 0; 
+      color: #ffffff; 
+      font-size: 24px; 
+      font-weight: 600; 
+      text-align: center; 
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      letter-spacing: -0.3px;
+    }
+    header div p { margin: 2px 0 0; color: rgba(255,255,255,0.8); font-size: 14px; }
+    @media (max-width: 768px) {
+      header { padding: 25px 15px; }
+      header div h1 { font-size: 20px; }
+    }
+    @media (max-width: 480px) {
+      header { padding: 20px 10px; }
+      header div h1 { font-size: 18px; line-height: 1.4; }
+    }
+    .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+    .card { 
+      background: var(--card); 
+      padding: 32px; 
+      border-radius: 12px; 
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
+      border: 1px solid #e5e7eb;
+    }
+    h2 { 
+      margin: 0 0 12px; 
+      font-size: 24px; 
+      color: var(--primary); 
+      font-weight: 600;
+      border-bottom: 3px solid var(--secondary);
+      padding-bottom: 8px;
+      display: inline-block;
+    }
+    p.lead { margin: 0 0 24px; color: var(--muted); font-size: 16px; }
+    .search-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 24px; }
+    input[type=text] { 
+      flex: 1; 
+      padding: 14px 16px; 
+      border: 2px solid #e5e7eb; 
+      border-radius: 8px; 
+      font-size: 16px; 
+      min-width: 250px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    input[type=text]:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(45, 78, 140, 0.1);
+    }
+    button { 
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); 
+      color: #fff; 
+      padding: 14px 24px; 
+      border-radius: 8px; 
+      border: none; 
+      cursor: pointer; 
+      transition: all 0.3s ease; 
+      font-size: 16px; 
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(45, 78, 140, 0.3);
+    }
+    button:hover { 
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(45, 78, 140, 0.4);
+    }
+    button.ghost { 
+      background: transparent; 
+      color: var(--primary); 
+      border: 2px solid var(--primary);
+      box-shadow: none;
+    }
+    button.ghost:hover { 
+      background: var(--primary); 
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    .notfound { 
+      padding: 24px; 
+      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); 
+      border: 1px solid #fca5a5; 
+      color: #dc2626; 
+      border-radius: 12px; 
+      margin-top: 24px; 
+      text-align: center; 
+      font-weight: 500;
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1);
+    }
+    .result-card { 
+      background: var(--result-bg); 
+      padding: 32px; 
+      margin-top: 32px; 
+      border-radius: 16px; 
+      border: 1px solid #e5e7eb; 
+      box-shadow: 0 8px 25px rgba(0,0,0,0.08); 
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .result-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+    }
+    .result-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 35px rgba(0,0,0,0.12);
+    }
+    .result-title { 
+      font-size: 20px; 
+      font-weight: 600; 
+      margin-bottom: 24px; 
+      color: var(--primary); 
+      display: flex; 
+      align-items: center; 
+      gap: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .result-title::before {
+      content: '✓';
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    }
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .result-field { 
+      margin-bottom: 0; 
+      padding: 16px 20px; 
+      background: #f8fafc; 
+      border-radius: 12px; 
+      border: 1px solid #e2e8f0; 
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .result-field:hover {
+      border-color: var(--primary);
+      background: #f1f5f9;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(45, 78, 140, 0.1);
+    }
+    .result-field strong { 
+      color: var(--primary); 
+      font-weight: 600; 
+      font-size: 12px; 
+      text-transform: uppercase; 
+      letter-spacing: 1px; 
+      display: block; 
+      margin-bottom: 6px;
+    }
+    .result-field span {
+      color: #374151;
+      font-weight: 500;
+      font-size: 16px;
+      line-height: 1.4;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .container { padding: 0 16px; margin: 24px auto; }
+      .card { padding: 24px; }
+      h2 { font-size: 20px; }
+      .search-row { gap: 12px; }
+      .result-card { padding: 24px; }
+      .result-title { font-size: 18px; }
+      .result-grid { grid-template-columns: 1fr; gap: 12px; }
+    }
+    
+    @media (max-width: 480px) {
+      .container { padding: 0 12px; margin: 16px auto; }
+      .card { padding: 20px; }
+      h2 { font-size: 18px; }
+      p.lead { font-size: 14px; margin-bottom: 20px; }
+      .search-row { flex-direction: column; align-items: stretch; gap: 12px; }
+      input[type=text] { min-width: auto; }
+      button { padding: 12px 20px; font-size: 14px; }
+      .result-card { padding: 20px; }
+      .result-field { padding: 14px 16px; }
+      .result-title { font-size: 16px; margin-bottom: 20px; }
+      .result-title::before { width: 28px; height: 28px; font-size: 14px; }
+    }
+    
+    @media (max-width: 320px) {
+      .container { padding: 0 10px; }
+      .card { padding: 16px; }
+      input[type=text], button { font-size: 14px; }
+      .result-field { padding: 12px 14px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Ministerio de Educación - Subdirección Concursos Jerárquicos</h1>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="card">
+      <div style="background: #1e2749; color: white; padding: 20px 32px; border-radius: 12px; margin-bottom: 32px; text-align: center; box-shadow: 0 6px 20px rgba(30, 39, 73, 0.35); border: 1px solid #2d4e8c;">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 8px;">
+          <strong style="font-size: 18px; text-transform: uppercase; letter-spacing: 0.8px;">Instancia Actual</strong>
+        </div>
+        <div style="font-size: 16px; font-weight: 500; line-height: 1.4;">Firma de Actas de Ofrecimiento de Cargos Jerárquicos en el Marco del Decreto Nº 4533-ME-2024</div>
+      </div>
+      <h2>Consulta por DNI</h2>
+      <p class="lead">Escriba su número de <strong>DNI</strong> y presione <strong>Buscar</strong>.</p>
+      
+      <div class="search-row">
+        <input id="dniInput" type="text" placeholder="Ej: 20123456" aria-label="DNI" />
+        <button id="searchBtn">Buscar</button>
+        <button id="clearBtn" class="ghost">Limpiar</button>
+      </div>
+      <div id="resultArea"></div>
+    </div>
+  </main>
+
+  <script>
+    // Base de datos de concursos jerárquicos - DATOS REALES
+    const data = [
+  {
+    "ID": 1,
+    "DNI": 16389383,
+    "Apellido y Nombre": "ZAGAGLIA VIVIANA PATRICIA",
+    "Establecimiento": "ESC TEC Nº 6 GRAL SAN MARTIN",
+    "Cargo": "REGENTE FORMACION\nGENERAL",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 2,
+    "DNI": 16778637,
+    "Apellido y Nombre": "MOYA RICARDO OSCAR",
+    "Establecimiento": "ESCUELA Nº 29 REMEDIOS ESCALADA DE SAN MARTIN",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 3,
+    "DNI": 17123098,
+    "Apellido y Nombre": "DURAN VICTOR ARNOLDO",
+    "Establecimiento": "ESC TEC Nº 37 ING GERMAN AVE\nLALLEMANT",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 4,
+    "DNI": 17241730,
+    "Apellido y Nombre": "MUÑOZ MARCELO ALEJANDRO",
+    "Establecimiento": "ESC TEC Nº 34 ARISTIDES BRATTI",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 5,
+    "DNI": 17389275,
+    "Apellido y Nombre": "FERNANDEZ MIGUEL\nANGEL",
+    "Establecimiento": "COLEGIO Nº 1 JUAN\nC LAFINUR",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 6,
+    "DNI": 17893636,
+    "Apellido y Nombre": "DOMINGUEZ VIRGINIA ALEJANDRA",
+    "Establecimiento": "ESC TEC Nº 19 BERNARDINO\nRIVADAVIA",
+    "Cargo": "REGENTE FORMACION\nGENERAL",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 7,
+    "DNI": 17893637,
+    "Apellido y Nombre": "VERDES JULIA ANDRIANA",
+    "Establecimiento": "ESCUELA DE JC Nº 444 EVA DUARTE DE\nPERON",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 8,
+    "DNI": 17893643,
+    "Apellido y Nombre": "PICCOLO JORGE MARIO",
+    "Establecimiento": "ESC TEC Nº 17 V BRIGADA",
+    "Cargo": "REGENTE FORMACION TECNICA",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 9,
+    "DNI": 17911134,
+    "Apellido y Nombre": "PUGLISI HECTOR LUIS",
+    "Establecimiento": "ESCUELA Nº 49 GOBERNADOR LINDOR QUIROGA",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 10,
+    "DNI": 17984419,
+    "Apellido y Nombre": "GUTIERREZ MARCELO DANIEL",
+    "Establecimiento": "ESC TEC Nº 2 SAN JOSE OBRERO",
+    "Cargo": "REGENTE FORMACION\nTECNICA",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 11,
+    "DNI": 18448847,
+    "Apellido y Nombre": "TOLEDO MONICA BEATRIZ",
+    "Establecimiento": "ESCUELA Nº 388 SARGENTO\nEDUARDO ROMERO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 12,
+    "DNI": 18519985,
+    "Apellido y Nombre": "FALIVENE JAMIER CLAUDIO GUSTAVO",
+    "Establecimiento": "ESC TEC Nº 18 NICOLASA BERRONDO DE QUIROGA",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 13,
+    "DNI": 18529825,
+    "Apellido y Nombre": "GLUSMAN VALERIA DENISE",
+    "Establecimiento": "ESC TEC Nº 6 GRAL SAN MARTIN",
+    "Cargo": "REGENTE FORMACION\nTECNICA",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 14,
+    "DNI": 18577144,
+    "Apellido y Nombre": "IBAÑEZ JUAN OMAR",
+    "Establecimiento": "ESC TEC Nº 17 V BRIGADA",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 15,
+    "DNI": 18614711,
+    "Apellido y Nombre": "GATICA GUSTAVO\nALFREDO",
+    "Establecimiento": "ESCUELA DE JC Nº\n440 SARMIENTO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 16,
+    "DNI": 18779809,
+    "Apellido y Nombre": "FRANCO DALILA",
+    "Establecimiento": "ENI Nº 14 MAESTRA BERTA RINAUDI DE\nGARCIA",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 17,
+    "DNI": 20029227,
+    "Apellido y Nombre": "JARDI SILVIA\nMARCELA",
+    "Establecimiento": "ESCUELA Nº 159\nPROVINCIA DE JUJUY",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 18,
+    "DNI": 20134379,
+    "Apellido y Nombre": "TAGLIAFERRO GABRIEL ALEJANDRO",
+    "Establecimiento": "ESC TEC Nº 9 DOMINGO F SARMIENTO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 19,
+    "DNI": 20136516,
+    "Apellido y Nombre": "DOMINGUEZ GRACIELA PATRICIA",
+    "Establecimiento": "INSTITUTO EXPERIMENTAL EDUCATIVO Nº 133\nFRAY LUIS AMIGÓ",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 20,
+    "DNI": 20420014,
+    "Apellido y Nombre": "CRETA MYRIAM ALICIA",
+    "Establecimiento": "CE Nº 27 GDOR SANTIAGO BESSO",
+    "Cargo": "REGENTE NIVEL SECUNDARIO CICLO ORIENTADO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 21,
+    "DNI": 20447410,
+    "Apellido y Nombre": "NIEVAS JULIA ELENA",
+    "Establecimiento": "ESCUELA Nº 251 SANTIAGO DEL\nESTERO",
+    "Cargo": "REGENTE PRIMARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 22,
+    "DNI": 20499631,
+    "Apellido y Nombre": "SOSA LILIANA GABRIELA",
+    "Establecimiento": "ESCUELA Nº 147 PROVINCIA DE\nMENDOZA",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 23,
+    "DNI": 20688286,
+    "Apellido y Nombre": "BASCONCELLO SANDRA MARCELA",
+    "Establecimiento": "ESCUELA Nº 12 TOMASA GARRAZA DE QUIROGA",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 24,
+    "DNI": 20688453,
+    "Apellido y Nombre": "CADELAGO SANDRA",
+    "Establecimiento": "CE Nº 12 LEOPOLDO LUGONES",
+    "Cargo": "REGENTE NIVEL PRIMARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 25,
+    "DNI": 20836068,
+    "Apellido y Nombre": "GATICA ISAGUIRRE GRACIELA DEL CARMEN",
+    "Establecimiento": "ESCUELA Nº 66 MONSEÑOR TIBILETTI",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 26,
+    "DNI": 21032909,
+    "Apellido y Nombre": "GEUNA VALERIA ANDREA",
+    "Establecimiento": "ESCUELA Nº 6 SANTA MARIA EUFRASIA",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 27,
+    "DNI": 21326441,
+    "Apellido y Nombre": "TEME GLORIA SUSANA",
+    "Establecimiento": "ESC TEC Nº 26 GDOR ELIAS ADRE",
+    "Cargo": "REGENTE FORMACION TECNICA",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 28,
+    "DNI": 21383395,
+    "Apellido y Nombre": "ROJO MARIELA ELIZABETH",
+    "Establecimiento": "ENI Nº 24 SENDERITOS DEL VALLE",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 29,
+    "DNI": 21383461,
+    "Apellido y Nombre": "ARCE ADRIANA DEL\nVALLE",
+    "Establecimiento": "CE Nº 5 SENADOR\nALFREDO BERTIN",
+    "Cargo": "REGENTE NIVEL\nINICIAL Y PRIMARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 30,
+    "DNI": 21383942,
+    "Apellido y Nombre": "VILLEGAS GLORIA DEL CARMEN",
+    "Establecimiento": "ENI Nº 11 DORA DEL CARMEN ZABALA",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 31,
+    "DNI": 21409420,
+    "Apellido y Nombre": "VEGA JORGE RICARDO",
+    "Establecimiento": "ESC TEC Nº 26 GDOR ELIAS ADRE",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 32,
+    "DNI": 21416753,
+    "Apellido y Nombre": "FERNANDEZ MARCELA INES",
+    "Establecimiento": "ESCUELA Nº 77 MAESTROS\nPUNTANOS",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 33,
+    "DNI": 21547784,
+    "Apellido y Nombre": "BARACCO MANUELA ALEJANDRA",
+    "Establecimiento": "ESCUELA SECUNDARIA DE ARTE Nº 1 GASPAR\nDIGENNARO",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 34,
+    "DNI": 21572632,
+    "Apellido y Nombre": "APARICIO MARIA INES",
+    "Establecimiento": "ESCUELA Nº 278 GRAL FRANKLIN\nLUCERO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 35,
+    "DNI": 21625251,
+    "Apellido y Nombre": "MARTINA MALISA\nANDREA",
+    "Establecimiento": "ESCUELA Nº 357\nMAXIMO CAMARGO",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 36,
+    "DNI": 21630475,
+    "Apellido y Nombre": "BERKICH SANDRA",
+    "Establecimiento": "ESCUELA Nº 417 GRANADERO FLORENCIO\nNAVARRO",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 37,
+    "DNI": 21910281,
+    "Apellido y Nombre": "CHIRINO SANDRA OFELIA",
+    "Establecimiento": "CE Nº 20 JUAN W GEZ",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 38,
+    "DNI": 21910386,
+    "Apellido y Nombre": "DOMINGUEZ DIOLY KARINA",
+    "Establecimiento": "ESC TEC Nº 28 GRAL JUAN MARTIN DE PUEYRREDON",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 39,
+    "DNI": 21924011,
+    "Apellido y Nombre": "AUTERI SANDRA MARCELA",
+    "Establecimiento": "ENI Nº 7 BURBUJITAS",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 40,
+    "DNI": 21933260,
+    "Apellido y Nombre": "RODAS SERGIO GUSTAVO",
+    "Establecimiento": "ESC TEC Nº 2 SAN JOSE OBRERO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 41,
+    "DNI": 22017285,
+    "Apellido y Nombre": "MARTIN MARIA DEL CARMEN",
+    "Establecimiento": "CE Nº 14 DORA OCHOA DE\nMASRAMON",
+    "Cargo": "DIRECTOR GENERAL",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 42,
+    "DNI": 22041695,
+    "Apellido y Nombre": "FLORES HERMOSILLA EDELMIRA",
+    "Establecimiento": "ESC TEC Nº 5 ING. ALVAREZ CONDARCO",
+    "Cargo": "REGENTE FORMACION GENERAL",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 43,
+    "DNI": 22067026,
+    "Apellido y Nombre": "PIZARRO LAURA VIVIANA",
+    "Establecimiento": "ESCUELA Nº 33 VICENTE DUPUY",
+    "Cargo": "REGENTE NIVEL PRIMARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 44,
+    "DNI": 22067135,
+    "Apellido y Nombre": "NUÑEZ ANALIA VERONICA",
+    "Establecimiento": "ENI Nº 22 UN MUNDO DE SUEÑOS",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 45,
+    "DNI": 22140590,
+    "Apellido y Nombre": "BARROSO SUSANA\nBEATRIZ",
+    "Establecimiento": "ENI Nº 25\nGARABATOS",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 46,
+    "DNI": 22164063,
+    "Apellido y Nombre": "RIOS DORA CLAUDIA",
+    "Establecimiento": "ESCUELA Nº 74 GDOR BENINGNO\nRODRIGUEZ JURADO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 47,
+    "DNI": 22227341,
+    "Apellido y Nombre": "IRIBARREN MARIA SILVINA",
+    "Establecimiento": "COLEGIO Nº 35 CAMINO DEL\nPEREGRINO",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 48,
+    "DNI": 22268809,
+    "Apellido y Nombre": "MANZANARES GUSTAVO DANIEL",
+    "Establecimiento": "COLEGIO Nº 40 HEROES DE MALVINAS",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 49,
+    "DNI": 22274565,
+    "Apellido y Nombre": "GIMENEZ CLAUDIA NOEMI",
+    "Establecimiento": "ESCUELA Nº 82 GENERAL LAS HERAS",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 50,
+    "DNI": 22379712,
+    "Apellido y Nombre": "ESSER SONIA MABEL",
+    "Establecimiento": "ESCUELA Nº 40 DOCTOR RICARDO ROJAS",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 51,
+    "DNI": 22422770,
+    "Apellido y Nombre": "ESCUDERO ANDREA CARMEN",
+    "Establecimiento": "ESC TEC Nº 15 ING AGUSTIN MERCAU",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 52,
+    "DNI": 22422780,
+    "Apellido y Nombre": "HIDALGO MARISA EDITH",
+    "Establecimiento": "ESCUELA ASISTENCIAL Nº 36 GOBERNADOR CARLOS ALRIC",
+    "Cargo": "REGENTE NIVEL INICIAL Y PRIMARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 53,
+    "DNI": 22445172,
+    "Apellido y Nombre": "GITTO MONICA VIVIANA",
+    "Establecimiento": "ESCUELA Nº 24 PANCHA\nHERNANDEZ",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 54,
+    "DNI": 22480464,
+    "Apellido y Nombre": "POGLIANI ROXANA ALEJANDRA",
+    "Establecimiento": "ESCUELA Nº 69 MAESTRA OLGA ESTER SARDEN",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 55,
+    "DNI": 22587758,
+    "Apellido y Nombre": "GODOY ANDREA VIVIANA",
+    "Establecimiento": "ENI Nº 23 LUNA DE PAPEL",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 56,
+    "DNI": 22588791,
+    "Apellido y Nombre": "NUÑEZ LAURA EVELINA",
+    "Establecimiento": "ESCUELA Nº 288 ANTONIO ESTEBAN AGÜERO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 57,
+    "DNI": 22624004,
+    "Apellido y Nombre": "ZAMUDIO MARIA JOSE SARA",
+    "Establecimiento": "CE Nº 25 JUSTO JOSE URQUIZA",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 58,
+    "DNI": 22636591,
+    "Apellido y Nombre": "CUEVAS CRISTIAN CESAR",
+    "Establecimiento": "CE Nº 2 PAULA DOMINGUEZ DE BAZAN",
+    "Cargo": "REGENTE NIVEL SECUNDARIO CICLO ORIENTADO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 59,
+    "DNI": 22786316,
+    "Apellido y Nombre": "CHACON GUILLERMO EDUARDO",
+    "Establecimiento": "ESCUELA Nº 33 VICENTE DUPUY",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 60,
+    "DNI": 22786537,
+    "Apellido y Nombre": "HONORATO ELIZABETH DEL CARMEN",
+    "Establecimiento": "ENI Nº 2 REMEDOS ESCALADA DE SAN MARTIN",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 61,
+    "DNI": 22884268,
+    "Apellido y Nombre": "DIAZ MARIA DEL CARMEN",
+    "Establecimiento": "ESCUELA Nº 4 JUAN TULIO ZAVALA",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 62,
+    "DNI": 23067858,
+    "Apellido y Nombre": "GONZALEZ VICTOR RAUL",
+    "Establecimiento": "CE Nº 16 TUCUMAN",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 63,
+    "DNI": 23084416,
+    "Apellido y Nombre": "VERA FABIA DELICIA",
+    "Establecimiento": "CE Nº 19 SARMIENTO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 64,
+    "DNI": 23093839,
+    "Apellido y Nombre": "MIRANDA MARIA JOSE",
+    "Establecimiento": "ENI Nº 5 MARIA EDELMIRA ALRIC DE CASTILLO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 65,
+    "DNI": 23157241,
+    "Apellido y Nombre": "MONTECINO MARIA CRISTINA",
+    "Establecimiento": "ESCUELA Nº 34 RAUL BASILIO DIAZ",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 66,
+    "DNI": 23202020,
+    "Apellido y Nombre": "QUEVEDO GRILLO VIRGINIA GUADALUPE",
+    "Establecimiento": "ESC TEC Nº 5 ING. ALVAREZ CONDARCO",
+    "Cargo": "REGENTE FORMACION TECNICA",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 67,
+    "DNI": 23202637,
+    "Apellido y Nombre": "BACHETTA MARIA SONIA",
+    "Establecimiento": "ESCUELA DE COMERCIO Nº 10 ESTEBAN\nPEDERNERA",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 68,
+    "DNI": 23251712,
+    "Apellido y Nombre": "QUIROGA MARIEL BLANCA SUSANA",
+    "Establecimiento": "CE Nº 8 MAESTRAS LUCIO LUCERO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 69,
+    "DNI": 23253091,
+    "Apellido y Nombre": "MANSILLA GABRIELA\nALEJANDRA",
+    "Establecimiento": "ESCUELA Nº 398\nJUSTO DARACT",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 70,
+    "DNI": 23253093,
+    "Apellido y Nombre": "CEJAS MONICA ARACELI",
+    "Establecimiento": "ESCUELA Nº 221 IRMA ROMERO DE\nPACHECO",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 71,
+    "DNI": 23358891,
+    "Apellido y Nombre": "FERNANDEZ PATRICIA SILVANA",
+    "Establecimiento": "CE Nº 26 MARIA PALMIRA CABRAL DE\nBECERRA",
+    "Cargo": "REGENTE NIVEL INICIAL Y PRIMARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 72,
+    "DNI": 23390561,
+    "Apellido y Nombre": "GUTIERREZ CLAUDIA ALEJANDRA",
+    "Establecimiento": "ESCUELA Nº 150 PROVINCIA DE SANTA FE",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 73,
+    "DNI": 23390950,
+    "Apellido y Nombre": "CAMPANA CECILIA INES",
+    "Establecimiento": "ESC TEC Nº 20 ANTONIO BERNI",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 74,
+    "DNI": 23407880,
+    "Apellido y Nombre": "ARCE LIDIA MAGDALENA",
+    "Establecimiento": "CE Nº 9 DOCTOR JUAN LLERENA",
+    "Cargo": "REGENTE NIVEL INICIAL Y PRIMARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 75,
+    "DNI": 23417994,
+    "Apellido y Nombre": "LIRA GLADYS NOEMI",
+    "Establecimiento": "ESC TEC Nº 1 ELENA OSSOLA DE HORAS",
+    "Cargo": "REGENTE FORMACION\nGENERAL",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 76,
+    "DNI": 23426790,
+    "Apellido y Nombre": "PONCE MARCELA MARIELA",
+    "Establecimiento": "ESCUELA Nº 33 VICENTE DUPUY",
+    "Cargo": "REGENTE NIVEL SECUNDARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 77,
+    "DNI": 23448172,
+    "Apellido y Nombre": "VIEYRA ENZO MARTIN",
+    "Establecimiento": "CE Nº 6 CABO PRINCIPAL FABRICIO\nALCARAZ",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 78,
+    "DNI": 23482828,
+    "Apellido y Nombre": "ESCUDERO MARIA CECILIA",
+    "Establecimiento": "ESCUELA Nº 114 DR RICARDO GUTIERREZ",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 79,
+    "DNI": 23507103,
+    "Apellido y Nombre": "ISGRO LORENA NELIDA",
+    "Establecimiento": "ESCUELA Nº 70 PROVINCIA DE SAN LUIS",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 80,
+    "DNI": 23538280,
+    "Apellido y Nombre": "MIRANDA LEILA\nEDITH",
+    "Establecimiento": "CE Nº 17 HIPOLITO\nIRIGOYEN",
+    "Cargo": "REGENTE NIVEL\nINICIAL Y PRIMARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 81,
+    "DNI": 23589809,
+    "Apellido y Nombre": "GONZALEZ ANDREA DEL CARMEN",
+    "Establecimiento": "COLEGIO PARA ADULTOS Nº 3 TOMAS BARAS",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 82,
+    "DNI": 23636156,
+    "Apellido y Nombre": "GUTIERREZ\nDEOLINDA",
+    "Establecimiento": "COLEGIO Nº 3\nMANUEL BELGRANO",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 83,
+    "DNI": 23637951,
+    "Apellido y Nombre": "SOSA MUÑOZ ILSA PAOLA",
+    "Establecimiento": "ESC TEC Nº 14 MTRO LUIS ANGEL LUCO",
+    "Cargo": "REGENTE FORMACION GENERAL",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 84,
+    "DNI": 23637983,
+    "Apellido y Nombre": "ESCUDERO MIRNA EDITH",
+    "Establecimiento": "ENI Nº 18 BENTEVEO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 85,
+    "DNI": 23707183,
+    "Apellido y Nombre": "MIRANDA MARIA JOSE",
+    "Establecimiento": "ENI Nº 4 ROSARIO VERA PEÑALOZA",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 86,
+    "DNI": 23707299,
+    "Apellido y Nombre": "BUSTOS SILVIA\nVERONICA",
+    "Establecimiento": "CE Nº 1 JUAN\nPASCUAL PRINGLES",
+    "Cargo": "REGENTE NIVEL\nPRIMARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 87,
+    "DNI": 23707646,
+    "Apellido y Nombre": "LUCERO MONICA\nBEATRIZ",
+    "Establecimiento": "CE Nº 1 JUAN\nPASCUAL PRINGLES",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 88,
+    "DNI": 23744584,
+    "Apellido y Nombre": "VIDALLE ERICA MARICEL",
+    "Establecimiento": "ESCUELA Nº 431 ANGELA NELLY CHENAU DE VECINO",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 89,
+    "DNI": 23759029,
+    "Apellido y Nombre": "CONTRERA CLAUDIA PATRICIA",
+    "Establecimiento": "ESC ESP Nº 1 DRA CAROLINA TOBAR\nGARCIA",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 90,
+    "DNI": 23888572,
+    "Apellido y Nombre": "CRUSEÑO NURIA\nGABRIELA",
+    "Establecimiento": "ESCUELA Nº 272\nCAPITAL FEDERAL",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 91,
+    "DNI": 23920895,
+    "Apellido y Nombre": "LUCERO TRANCHETTI CARINA",
+    "Establecimiento": "ESCUELA Nº 77 MAESTROS\nPUNTANOS",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 92,
+    "DNI": 23947012,
+    "Apellido y Nombre": "GOMEZ SILVIA CRISTINA",
+    "Establecimiento": "ESCUELA Nº 51 MAESTRO FAUSTINO\nSEGUNDO MENDOZA",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 93,
+    "DNI": 23947069,
+    "Apellido y Nombre": "HERNANDEZ MARCELA SUSANA",
+    "Establecimiento": "CE Nº 28 RENÉ FAVALORO",
+    "Cargo": "REGENTE NIVEL INICIAL Y PRIMARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 94,
+    "DNI": 23947623,
+    "Apellido y Nombre": "LUCERO ROXANA VERONICA",
+    "Establecimiento": "ENI Nº 19 PAULA DOMINGUEZ DE\nBAZAN",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 95,
+    "DNI": 23947797,
+    "Apellido y Nombre": "ZARANDON ANA DEL CARMEN",
+    "Establecimiento": "ESCUELA Nº 66 MONSEÑOR TIBILETTI",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 96,
+    "DNI": 23999198,
+    "Apellido y Nombre": "BARZOLA BELAUNDE PAOLA ANDREA",
+    "Establecimiento": "ESC TEC Nº 14 MTRO LUIS ANGEL LUCO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 97,
+    "DNI": 24004128,
+    "Apellido y Nombre": "CHWESIUK LORENA NATALIA",
+    "Establecimiento": "ESCUELA Nº 139 BARTOLOME MITRE",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 98,
+    "DNI": 24141926,
+    "Apellido y Nombre": "GIMENEZ SILVANA\nCRISTINA",
+    "Establecimiento": "ESC TEC Nº 34\nARISTIDES BRATTI",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 99,
+    "DNI": 24144188,
+    "Apellido y Nombre": "KRYSA MARIELA\nALEJANDRA",
+    "Establecimiento": "ESCUELA Nº 95\nVICTOR MERCANTE",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 100,
+    "DNI": 24153594,
+    "Apellido y Nombre": "URQUIZA ANDREA VERONICA",
+    "Establecimiento": "CE Nº 17 HIPOLITO IRIGOYEN",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 101,
+    "DNI": 24154285,
+    "Apellido y Nombre": "CASTRO ANDREA BEATRIZ",
+    "Establecimiento": "ESC TEC Nº 33 PROF GABINO PUELLES",
+    "Cargo": "REGENTE FORMACION GENERAL",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 102,
+    "DNI": 24165142,
+    "Apellido y Nombre": "CALLEJA DEBORA INES",
+    "Establecimiento": "COLEGIO Nº 38 MARIE CURIE",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 103,
+    "DNI": 24258404,
+    "Apellido y Nombre": "TORRES SILVIA ADRIANA",
+    "Establecimiento": "ESCUELA Nº 371 JUAN BAUTISTA\nALBERDI",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 104,
+    "DNI": 24357607,
+    "Apellido y Nombre": "MARRACO VERONICA",
+    "Establecimiento": "ESC TEC Nº 17 V BRIGADA",
+    "Cargo": "REGENTE FORMACION\nGENERAL",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 105,
+    "DNI": 24372921,
+    "Apellido y Nombre": "NINAGO MARIA DEL CARMEN",
+    "Establecimiento": "ESCUELA Nº 175 GRAL JOSE DE SAN\nMARTIN",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 106,
+    "DNI": 24381905,
+    "Apellido y Nombre": "ESPINOSA ANGELICA NOEMI",
+    "Establecimiento": "ESC TEC Nº 4 FRAY LUIS BELTRAN",
+    "Cargo": "REGENTE FORMACION GENERAL",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 107,
+    "DNI": 24387744,
+    "Apellido y Nombre": "GATICA MARISA ETHEL",
+    "Establecimiento": "CE Nº 2 PAULA DOMINGUEZ DE BAZAN",
+    "Cargo": "REGENTE NIVEL SECUNDARIO CICLO BASICO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 108,
+    "DNI": 24389607,
+    "Apellido y Nombre": "PEREZ MIRTA",
+    "Establecimiento": "ENI Nº 21 JARDIN CONSTRUYENDO\nSUEÑOS",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 109,
+    "DNI": 24460923,
+    "Apellido y Nombre": "ALCANONI ESTELA\nMIRIAM",
+    "Establecimiento": "ESCUELA Nº 9\nESTEBAN ADARO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 110,
+    "DNI": 24637976,
+    "Apellido y Nombre": "LEAL MONICA\nALEJANDRA",
+    "Establecimiento": "ESC TEC Nº 33 PROF\nGABINO PUELLES",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 111,
+    "DNI": 24637996,
+    "Apellido y Nombre": "FLORES LITA ANDREA",
+    "Establecimiento": "ENI Nº 12 MI VALLE AZUL",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 112,
+    "DNI": 24670184,
+    "Apellido y Nombre": "BIONDA ANABEL CLAUDIA",
+    "Establecimiento": "COLEGIO Nº 2 JUAN ESTEBAN PEDERNERA",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 113,
+    "DNI": 24748018,
+    "Apellido y Nombre": "QUEVEDO TERESITA DEL CARMEN",
+    "Establecimiento": "ESCUELA Nº 147 PROVINCIA DE MENDOZA",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 114,
+    "DNI": 24800529,
+    "Apellido y Nombre": "GARCIA BASALO MARIA VICTORIA",
+    "Establecimiento": "CE Nº 27 GDOR SANTIAGO BESSO",
+    "Cargo": "REGENTE NIVEL SECUNDARIO CICLO\nBASICO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 115,
+    "DNI": 24817998,
+    "Apellido y Nombre": "OLGUIN MARIA DE LOS ANGELES",
+    "Establecimiento": "ESC TEC Nº 26 GDOR ELIAS ADRE",
+    "Cargo": "REGENTE FORMACION\nGENERAL",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 116,
+    "DNI": 24872935,
+    "Apellido y Nombre": "RIBAS OLGA BEATRIZ",
+    "Establecimiento": "ENI Nº 11 DORA DEL CARMEN ZABALA",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 117,
+    "DNI": 24904553,
+    "Apellido y Nombre": "BARROS PASCUAL\nROMINA",
+    "Establecimiento": "ESCUELA Nº 181 SAN\nJOSE DE CALASANZ",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 118,
+    "DNI": 24919210,
+    "Apellido y Nombre": "GOMEZ NATALIA\nCAROLINA",
+    "Establecimiento": "ESCUELA Nº 152\nALAS ARGENTINAS",
+    "Cargo": "REGENTE NIVEL\nINICIAL Y PRIMARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 119,
+    "DNI": 24938217,
+    "Apellido y Nombre": "GALLO MARIA EUGENIA",
+    "Establecimiento": "ESCUELA Nº 114 DR RICARDO GUTIERREZ",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 120,
+    "DNI": 24953072,
+    "Apellido y Nombre": "CABAÑEZ SILVINA DEL VALLE",
+    "Establecimiento": "ESC ESP Nº 8 SUBSECRETARIO\nJORGE AOSTRI",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 121,
+    "DNI": 24959956,
+    "Apellido y Nombre": "ARDISSONE SILVIA GABRIELA",
+    "Establecimiento": "COLEGIO Nº 3 MANUEL BELGRANO",
+    "Cargo": "REGENTE NIVEL SECUNDARIO PARA\nJOVENES",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 122,
+    "DNI": 25101950,
+    "Apellido y Nombre": "NIEVAS SILVANA DEOLINDA",
+    "Establecimiento": "ESCUELA Nº 162 DOMINGO FAUSTINO\nSARMIENTO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 123,
+    "DNI": 25102873,
+    "Apellido y Nombre": "PESCATORI FLAVIA PAOLA",
+    "Establecimiento": "ESC TEC Nº 4 FRAY LUIS BELTRAN",
+    "Cargo": "REGENTE FORMACION TECNICA",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 124,
+    "DNI": 25132605,
+    "Apellido y Nombre": "AUGUSTO FERNANDEZ VALERIA VERONICA",
+    "Establecimiento": "ESCUELA Nº 176 MAESTRA NELIDA ESTHER PEREZ DE FERRER",
+    "Cargo": "REGENTE NIVEL INICIAL Y PRIMARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 125,
+    "DNI": 25139282,
+    "Apellido y Nombre": "MORENO ANA LORENA",
+    "Establecimiento": "ESC TEC Nº 34 ARISTIDES BRATTI",
+    "Cargo": "REGENTE NIVEL SECUNDARIO PARA JOVENES Y ADULTOS",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 126,
+    "DNI": 25205605,
+    "Apellido y Nombre": "RECOLONS MARIANA",
+    "Establecimiento": "ESCUELA Nº 446 PUEBLO PUNTANO DE LA INDEPENDENCIA",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 127,
+    "DNI": 25276925,
+    "Apellido y Nombre": "BEIRA OLGA SUSANA",
+    "Establecimiento": "ENI Nº 11 DORA DEL CARMEN ZABALA",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 128,
+    "DNI": 25281182,
+    "Apellido y Nombre": "ZANGLA ROMINA MARIA BELEN",
+    "Establecimiento": "COLEGIO Nº 36 BERNARDO\nHOUSSAY",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 129,
+    "DNI": 25394762,
+    "Apellido y Nombre": "BATTISTI PAOLA DE LOURDES",
+    "Establecimiento": "ESCUELA Nº 34 RAUL BASILIO DIAZ",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 130,
+    "DNI": 25482641,
+    "Apellido y Nombre": "PEREZ ANDREA ALEJANDRA",
+    "Establecimiento": "ESCUELA Nº 114 DR RICARDO\nGUTIERREZ",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 131,
+    "DNI": 25508777,
+    "Apellido y Nombre": "JARA MARIELA RUTH SALOME",
+    "Establecimiento": "ESCUELA Nº 27 SATURNINO CAMARERO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 132,
+    "DNI": 25565492,
+    "Apellido y Nombre": "SCUDIERE MARTIN RAMON",
+    "Establecimiento": "ESC TEC Nº 5 ING. ALVAREZ CONDARCO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 133,
+    "DNI": 25565552,
+    "Apellido y Nombre": "ORTEGAS CINTIA LORENA",
+    "Establecimiento": "ESC TEC Nº 37 ING GERMAN AVE LALLEMANT",
+    "Cargo": "REGENTE FORMACION GENERAL",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 134,
+    "DNI": 25565725,
+    "Apellido y Nombre": "PONCE ANDREA LEDIS",
+    "Establecimiento": "COLEGIO Nº 1 JUAN C LAFINUR",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 135,
+    "DNI": 25590077,
+    "Apellido y Nombre": "CONTRERAS LIS SOLEDAD",
+    "Establecimiento": "ESCUELA Nº 3 MANUEL BELGRANO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 136,
+    "DNI": 25652445,
+    "Apellido y Nombre": "IBAÑEZ SILVA EVELYN GRISEL IVON",
+    "Establecimiento": "ESCUELA Nº 5 BARTOLOME MITRE",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 137,
+    "DNI": 25820778,
+    "Apellido y Nombre": "SALDIVAR SILVANA RAMONA",
+    "Establecimiento": "COLEGIO Nº 1 JUAN C LAFINUR",
+    "Cargo": "REGENTE NIVEL SECUNDARIO P/ ADULTOS",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 138,
+    "DNI": 25826017,
+    "Apellido y Nombre": "TEJEDOR CECILIA ADRIANA",
+    "Establecimiento": "ESCUELA Nº 179 EJERCITO ARGENTINO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 139,
+    "DNI": 25854132,
+    "Apellido y Nombre": "OTERO ANDREA LORENA",
+    "Establecimiento": "ESCUELA Nº 267 GOBERNADOR\nERIBERTO MENDOZA",
+    "Cargo": "REGENTE NIVEL SECUNDARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 140,
+    "DNI": 25870538,
+    "Apellido y Nombre": "FERNANDEZ\nPATRICIA VERONICA",
+    "Establecimiento": "ESCUELA Nº 31\nMARIANO MORENO",
+    "Cargo": "REGENTE NIVEL\nSECUNDARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 141,
+    "DNI": 25939389,
+    "Apellido y Nombre": "OJEDA CAROLINA GABRIELA",
+    "Establecimiento": "CE Nº 6 CABO PRINCIPAL FABRICIO\nALCARAZ",
+    "Cargo": "REGENTE FORMACION\nTECNICA",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 142,
+    "DNI": 25988248,
+    "Apellido y Nombre": "PONCE NANCY\nMARIEL",
+    "Establecimiento": "ESC TEC Nº 6 GRAL\nSAN MARTIN",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 143,
+    "DNI": 26042709,
+    "Apellido y Nombre": "HEREDIA ERICA SILVANA",
+    "Establecimiento": "ESC TEC Nº 10 MARTIN M DE\nGÜEMES",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 144,
+    "DNI": 26042750,
+    "Apellido y Nombre": "AGÜERO LUISA\nCLARA VIRGINIA",
+    "Establecimiento": "COLEGIO Nº 12\nRAMON CARRILLO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 145,
+    "DNI": 26053745,
+    "Apellido y Nombre": "TOLEDO REBECA",
+    "Establecimiento": "ENI Nº 9 SEÑORA\nCHABELA",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 146,
+    "DNI": 26214653,
+    "Apellido y Nombre": "BONOMO VERONICA MARIANA",
+    "Establecimiento": "CE Nº 20 JUAN W GEZ",
+    "Cargo": "REGENTE NIVEL SECUNDARIO P/ ADULTOS",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 147,
+    "DNI": 26214885,
+    "Apellido y Nombre": "CIANCIA CAROLINA LIDIA",
+    "Establecimiento": "ESCUELA Nº 29 REMEDIOS ESCALADA DE SAN\nMARTIN",
+    "Cargo": "REGENTE NIVEL PRIMARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 148,
+    "DNI": 26239338,
+    "Apellido y Nombre": "BRANDANA NIEVAS CLAUDIA NOEMI",
+    "Establecimiento": "ESCUELA Nº 445 RIO QUINTO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 149,
+    "DNI": 26405417,
+    "Apellido y Nombre": "GIULIANI MONICA FABIANA",
+    "Establecimiento": "ESCUELA Nº 221 IRMA ROMERO DE PACHECO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 150,
+    "DNI": 26432975,
+    "Apellido y Nombre": "ROMEO RITA",
+    "Establecimiento": "ENI Nº 6 CRECER JUGANDO",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 151,
+    "DNI": 26467265,
+    "Apellido y Nombre": "WILDNER CLAUDIO RAMON",
+    "Establecimiento": "COLEGIO Nº 2 JUAN ESTEBAN PEDERNERA",
+    "Cargo": "REGENTE NIVEL SECUNDARIO P/ ADULTOS",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 152,
+    "DNI": 26467721,
+    "Apellido y Nombre": "FIGUEROA ADRIANA CAROLINA",
+    "Establecimiento": "CE Nº 6 CABO PRINCIPAL FABRICIO ALCARAZ",
+    "Cargo": "REGENTE NIVEL INICIAL Y PRIMARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 153,
+    "DNI": 26467733,
+    "Apellido y Nombre": "GATICA NORA GRACIELA",
+    "Establecimiento": "ENI Nº 1 MAESTRAS LUCIO LUCERO",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 154,
+    "DNI": 26504880,
+    "Apellido y Nombre": "MANSILLA MARIA LORENA",
+    "Establecimiento": "COLEGIO Nº 3 MANUEL BELGRANO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 155,
+    "DNI": 26504985,
+    "Apellido y Nombre": "PEREYRA ANTONIA ELISABETH",
+    "Establecimiento": "CE Nº 26 MARIA PALMIRA CABRAL DE\nBECERRA",
+    "Cargo": "DIRECTOR GENERAL",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 156,
+    "DNI": 26576564,
+    "Apellido y Nombre": "BRANDANA SILVIA RITA",
+    "Establecimiento": "ESC TEC Nº 28 GRAL JUAN MARTIN DE PUEYRREDON",
+    "Cargo": "REGENTE FORMACION GENERAL",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 157,
+    "DNI": 26787924,
+    "Apellido y Nombre": "MERCAU SONIA PAOLA",
+    "Establecimiento": "ESC TEC Nº 1 ELENA OSSOLA DE HORAS",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 158,
+    "DNI": 26936266,
+    "Apellido y Nombre": "NUÑEZ NATALIA",
+    "Establecimiento": "ENI Nº 4 ROSARIO VERA PEÑALOZA",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 159,
+    "DNI": 26941512,
+    "Apellido y Nombre": "SUAREZ VERONICA GRACIELA",
+    "Establecimiento": "CE Nº 2 PAULA DOMINGUEZ DE\nBAZAN",
+    "Cargo": "REGENTE NIVEL INICIAL Y PRIMARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 160,
+    "DNI": 27047830,
+    "Apellido y Nombre": "SOSA CAROLINA MARISOL",
+    "Establecimiento": "CE Nº 1 JUAN PASCUAL PRINGLES",
+    "Cargo": "REGENTE NIVEL SECUNDARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 161,
+    "DNI": 27266723,
+    "Apellido y Nombre": "ISAIA MARIA\nVERONICA",
+    "Establecimiento": "COLEGIO Nº 7 GRAL\nMANUEL BELGRANO",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 162,
+    "DNI": 27298176,
+    "Apellido y Nombre": "VIVARES NATALIA\nSOLEDAD",
+    "Establecimiento": "CE Nº 25 JUSTO JOSE\nURQUIZA",
+    "Cargo": "REGENTE NIVEL\nINICIAL Y PRIMARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 163,
+    "DNI": 27393651,
+    "Apellido y Nombre": "ALBA SILVANA MARIELA",
+    "Establecimiento": "ESC TEC Nº 19 BERNARDINO RIVADAVIA",
+    "Cargo": "REGENTE FORMACION TECNICA",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 164,
+    "DNI": 27394494,
+    "Apellido y Nombre": "BLANCO ANALIA\nGLADYS",
+    "Establecimiento": "ESCUELA Nº 4 JUAN\nTULIO ZAVALA",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 165,
+    "DNI": 27394565,
+    "Apellido y Nombre": "LATINI NATALIA CAROLINA",
+    "Establecimiento": "ESCUELA Nº 431 ANGELA NELLY CHENAU DE VECINO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 166,
+    "DNI": 27394896,
+    "Apellido y Nombre": "LUCO CLAUDIO SEBASTIAN",
+    "Establecimiento": "CE Nº 20 JUAN W GEZ",
+    "Cargo": "REGENTE FORMACION\nTECNICA",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 167,
+    "DNI": 27469671,
+    "Apellido y Nombre": "NIEVAS BEATRIZ DEL\nVALLE",
+    "Establecimiento": "ESCUELA Nº 50\nEULALIO ASTUDILLO",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 168,
+    "DNI": 27619104,
+    "Apellido y Nombre": "VIGNALE ALICIA ROXANA",
+    "Establecimiento": "ESCUELA Nº 148 PROVINCIA DE\nCHUBUT",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 169,
+    "DNI": 27849193,
+    "Apellido y Nombre": "CABALLERO YANINA DE LOS ANGELES",
+    "Establecimiento": "ESCUELA Nº 431 ANGELA NELLY\nCHENAU DE VECINO",
+    "Cargo": "REGENTE NIVEL SECUNDARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 170,
+    "DNI": 27898513,
+    "Apellido y Nombre": "SUAREZ SANTIAGO HERNAN",
+    "Establecimiento": "COLEGIO Nº 35 CAMINO DEL PEREGRINO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 171,
+    "DNI": 27909860,
+    "Apellido y Nombre": "OCHOA MONICA EDITH",
+    "Establecimiento": "COLEGIO Nº 22 JOSE MANUEL ESTRADA",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 172,
+    "DNI": 27917839,
+    "Apellido y Nombre": "DELFINO CARLOS CESAR",
+    "Establecimiento": "COLEGIO Nº 27 DR ELEODORO LOBOS",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 173,
+    "DNI": 27946962,
+    "Apellido y Nombre": "GARCIA MARIA\nCELESTE",
+    "Establecimiento": "ESC TEC Nº 15 ING\nAGUSTIN MERCAU",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 174,
+    "DNI": 27953799,
+    "Apellido y Nombre": "MANRIQUE IVAN\nDAVID",
+    "Establecimiento": "ESC TEC Nº 17 V\nBRIGADA",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 175,
+    "DNI": 28088854,
+    "Apellido y Nombre": "JARA ADRIANA YANINA",
+    "Establecimiento": "ESCUELA Nº 152 ALAS ARGENTINAS",
+    "Cargo": "REGENTE NIVEL SECUNDARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 176,
+    "DNI": 28184883,
+    "Apellido y Nombre": "CUEVAS NATALIA SOLEDAD",
+    "Establecimiento": "COLEGIO PARA ADULTOS Nº 443 ISLAS MALVINAS",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 177,
+    "DNI": 28439841,
+    "Apellido y Nombre": "LUNA PAULA GABRIELA",
+    "Establecimiento": "ESCUELA Nº 267 GOBERNADOR ERIBERTO MENDOZA",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 178,
+    "DNI": 28489539,
+    "Apellido y Nombre": "LUCERO IVANA",
+    "Establecimiento": "CE Nº 5 SENADOR ALFREDO BERTIN",
+    "Cargo": "REGENTE NIVEL SECUNDARIO CICLO\nBASICO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 179,
+    "DNI": 28599550,
+    "Apellido y Nombre": "RENNA MARIA INES",
+    "Establecimiento": "ESCUELA Nº 5\nBARTOLOME MITRE",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 180,
+    "DNI": 29069944,
+    "Apellido y Nombre": "AGUILERA GRACIELA\nCECILIA",
+    "Establecimiento": "ESC TEC Nº 3 EVA\nPERON",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 181,
+    "DNI": 29096865,
+    "Apellido y Nombre": "PELATAY GONZALEZ MARIA ROSA",
+    "Establecimiento": "ESC EDUCACION ESPECIAL Nº 9 APADIS",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 182,
+    "DNI": 29111734,
+    "Apellido y Nombre": "PAVON WALTER\nMARIO",
+    "Establecimiento": "ESC TEC Nº 8\nMAURICIO P DARACT",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 183,
+    "DNI": 29262099,
+    "Apellido y Nombre": "AIZPURUA MARIA JULIA",
+    "Establecimiento": "ESC TEC Nº 34 ARISTIDES BRATTI",
+    "Cargo": "REGENTE FORMACION GENERAL",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 184,
+    "DNI": 29339650,
+    "Apellido y Nombre": "GONZALEZ PAULA\nESTHER",
+    "Establecimiento": "ENI Nº 10 CATILANDIA",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 185,
+    "DNI": 29342343,
+    "Apellido y Nombre": "GIMENEZ YAMILA FERNANDA",
+    "Establecimiento": "ESC TEC Nº 19 BERNARDINO RIVADAVIA",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 186,
+    "DNI": 29426401,
+    "Apellido y Nombre": "AVACA PATRICIA\nANAHI",
+    "Establecimiento": "COLEGIO Nº 7 GRAL\nMANUEL BELGRANO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 187,
+    "DNI": 29522471,
+    "Apellido y Nombre": "QUIROGA SABRINA DE LOURDES",
+    "Establecimiento": "ESCUELA Nº 6 SANTA MARIA EUFRASIA",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 188,
+    "DNI": 29668369,
+    "Apellido y Nombre": "CALDERON MELISA NOELIA",
+    "Establecimiento": "COLEGIO Nº 40 HEROES DE MALVINAS",
+    "Cargo": "REGENTE NIVEL SECUNDARIO PARA JOVENES",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 189,
+    "DNI": 29836362,
+    "Apellido y Nombre": "PEDRAZA NATALIA ANDREA",
+    "Establecimiento": "ESCUELA Nº 9 ESTEBAN ADARO",
+    "Cargo": "REGENTE NIVEL SECUNDARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 190,
+    "DNI": 29941306,
+    "Apellido y Nombre": "AVILA MARIA ESTELA",
+    "Establecimiento": "ESCUELA SECUNDARIA DE ARTE Nº 1 GASPAR\nDIGENNARO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 191,
+    "DNI": 30001904,
+    "Apellido y Nombre": "CUELLO ANA PAULA",
+    "Establecimiento": "ESCUELA Nº 272 CAPITAL FEDERAL",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 192,
+    "DNI": 30066073,
+    "Apellido y Nombre": "BORRONI GABRIELA ALEJANDRA",
+    "Establecimiento": "ESCUELA Nº 74 GDOR BENINGNO\nRODRIGUEZ JURADO",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 193,
+    "DNI": 30099278,
+    "Apellido y Nombre": "ROSSI RODRIGUEZ MARIA BELEN",
+    "Establecimiento": "ESCUELA Nº 43 DOCTOR TOMAS JOFRE",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 194,
+    "DNI": 30244220,
+    "Apellido y Nombre": "MUÑOZ SOSA YAMILA ROXANA",
+    "Establecimiento": "ESCUELA Nº 51 MAESTRO FAUSTINO SEGUNDO MENDOZA",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 195,
+    "DNI": 30345770,
+    "Apellido y Nombre": "FARIAS ROMINA BEATRIZ",
+    "Establecimiento": "CE Nº 8 MAESTRAS LUCIO LUCERO",
+    "Cargo": "REGENTE NIVEL SECUNDARIO CICLO\nORIENTADO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 196,
+    "DNI": 30478288,
+    "Apellido y Nombre": "MALDONADO DELIA CARINA",
+    "Establecimiento": "ESCUELA Nº 43 DOCTOR TOMAS\nJOFRE",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 197,
+    "DNI": 30581761,
+    "Apellido y Nombre": "MUÑOZ GISELA YAMILA",
+    "Establecimiento": "ENI Nº 13 DR RICARDO ZAVALA ORTIZ",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 198,
+    "DNI": 30581774,
+    "Apellido y Nombre": "CERESOLE MARIA VANESA",
+    "Establecimiento": "CE Nº 12 LEOPOLDO LUGONES",
+    "Cargo": "REGENTE NIVEL SECUNDARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 199,
+    "DNI": 30687458,
+    "Apellido y Nombre": "QUIROGA CARDINI SILVANA BELEN",
+    "Establecimiento": "ESCUELA Nº 31 MARIANO MORENO",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 200,
+    "DNI": 30850128,
+    "Apellido y Nombre": "BARRETO MARISOL\nINES",
+    "Establecimiento": "ESCUELA Nº 159\nPROVINCIA DE JUJUY",
+    "Cargo": "REGENTE NIVEL\nSECUNDARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 201,
+    "DNI": 31327965,
+    "Apellido y Nombre": "SOMBRA JULIETA YANINA",
+    "Establecimiento": "ESC TEC Nº 3 EVA PERON",
+    "Cargo": "REGENTE FORMACION\nTECNICA",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 202,
+    "DNI": 31402006,
+    "Apellido y Nombre": "RIEU KARINA\nARIADNE",
+    "Establecimiento": "ENI Nº 17 HUELLITAS\nDE COLORES",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 203,
+    "DNI": 31716916,
+    "Apellido y Nombre": "ESCUDERO MILCA\nJUDIT",
+    "Establecimiento": "ESCUELA Nº 187\nJOSE HERNANDEZ",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 204,
+    "DNI": 32107340,
+    "Apellido y Nombre": "CORNEJO VANESA CATALINA",
+    "Establecimiento": "ESC TEC Nº 18 NICOLASA BERRONDO DE QUIROGA",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 205,
+    "DNI": 32159244,
+    "Apellido y Nombre": "ORTIZ MARIA VIRGINIA",
+    "Establecimiento": "CE Nº 20 JUAN W GEZ",
+    "Cargo": "REGENTE FORMACION GENERAL",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 206,
+    "DNI": 32220976,
+    "Apellido y Nombre": "VALLEJOS JESICA EVELIN",
+    "Establecimiento": "CE Nº 19 SARMIENTO",
+    "Cargo": "REGENTE NIVEL SECUNDARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 207,
+    "DNI": 32633227,
+    "Apellido y Nombre": "BARROSO MARIA\nCECILIA",
+    "Establecimiento": "ENI Nº 8 MAESTRAS\nMERCEDINAS",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 208,
+    "DNI": 33096529,
+    "Apellido y Nombre": "CENSORI MARCELA\nBEATRIZ",
+    "Establecimiento": "ESCUELA Nº 312\nREPUBLICA DE CHILE",
+    "Cargo": "DIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 209,
+    "DNI": 33136360,
+    "Apellido y Nombre": "DOMINGUEZ PAULA GRISELDA",
+    "Establecimiento": "COLEGIO Nº 2 JUAN ESTEBAN PEDERNERA",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 210,
+    "DNI": 34504834,
+    "Apellido y Nombre": "SCHENK\nGUILLERMINA ELENA",
+    "Establecimiento": "ESCUELA Nº 159\nPROVINCIA DE JUJUY",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 211,
+    "DNI": 35475642,
+    "Apellido y Nombre": "SOSNOWSKI MARIA BELEN",
+    "Establecimiento": "ESC TEC Nº 18 NICOLASA BERRONDO DE QUIROGA",
+    "Cargo": "REGENTE FORMACION GENERAL",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 212,
+    "DNI": 35765227,
+    "Apellido y Nombre": "CUELLO MARIA EMILIA",
+    "Establecimiento": "ESCUELA Nº 221 IRMA ROMERO DE PACHECO",
+    "Cargo": "REGENTE NIVEL SECUNDARIO",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 213,
+    "DNI": 37526607,
+    "Apellido y Nombre": "ORTIZ MELINA VANESA",
+    "Establecimiento": "ESCUELA Nº 251 SANTIAGO DEL ESTERO",
+    "Cargo": "VICEDIRECTOR",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  },
+  {
+    "ID": 214,
+    "DNI": 92882863,
+    "Apellido y Nombre": "JOURDAN LAURA",
+    "Establecimiento": "ESC TEC Nº 37 ING GERMAN AVE\nLALLEMANT",
+    "Cargo": "REGENTE FORMACION\nTECNICA",
+    "Fecha": "12/08",
+    "Lugar": "Ministerio de Educacion - Planta Baja.",
+    "Horario de Inicio": "8:00",
+    "Horario de Finalizaccion": "10:00"
+  }
+]
+
+    const dniInput = document.getElementById('dniInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const resultArea = document.getElementById('resultArea');
+
+    function renderResults(rows) {
+      if (!rows || rows.length === 0) {
+        resultArea.innerHTML = '<div class="notfound">❌ No se encontraron resultados para el DNI ingresado.</div>';
+        return;
+      }
+      let html = '';
+      for (const r of rows) {
+        html += `<div class="result-card">
+          <div class="result-title">Resultado de la búsqueda</div>
+          <div class="result-grid">
+            <div class="result-field"><strong>DNI</strong><span>${r.DNI || 'N/A'}</span></div>
+            <div class="result-field"><strong>Apellido y Nombre</strong><span>${r['Apellido y Nombre'] || 'N/A'}</span></div>
+            <div class="result-field"><strong>Establecimiento</strong><span>${r.Establecimiento || 'N/A'}</span></div>
+            <div class="result-field"><strong>Cargo</strong><span>${r.Cargo || 'N/A'}</span></div>
+            <div class="result-field"><strong>Fecha</strong><span>${r.Fecha || 'N/A'}</span></div>
+            <div class="result-field"><strong>Lugar</strong><span>${r.Lugar || 'N/A'}</span></div>
+            <div class="result-field"><strong>Hora inicio</strong><span>${r['Horario de Inicio'] || 'N/A'}</span></div>
+            <div class="result-field"><strong>Hora final</strong><span>${r['Horario de Finalizaccion'] || 'N/A'}</span></div>
+          </div>
+        </div>`;
+      }
+      resultArea.innerHTML = html;
+    }
+
+    searchBtn.addEventListener('click', () => {
+      const q = dniInput.value.trim();
+      if (!/^[0-9]+$/.test(q)) {
+        resultArea.innerHTML = '<div class="notfound">Por favor ingrese solo números del DNI.</div>';
+        return;
+      }
+      
+      // Buscar en la base de datos interna
+      const matches = data.filter(item => 
+        item.DNI && item.DNI.toString().includes(q)
+      );
+      renderResults(matches);
+    });
+
+    clearBtn.addEventListener('click', () => { 
+      dniInput.value = ''; 
+      resultArea.innerHTML = ''; 
+    });
+  </script>
+</body>
+</html>
